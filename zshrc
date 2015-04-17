@@ -34,7 +34,7 @@ alias la='ls -A'
 alias l='ls -CF'
 alias s='echo FAIL && ls'
 alias mplayer=mpv
-alias vdpau='mpv -vo vdpau -fs --framedrop=yes'
+alias vdpau='mpv -vo vdpau -fs --framedrop=decoder+vo'
 alias mkv='vdpau -demuxer mkv'
 alias ..='cd ../ && l'
 alias ...='cd ../.. && l'
@@ -43,17 +43,31 @@ alias xclip2b='xclip -o | xclip -i -sel clipboard'
 alias b2xclip='xclip -o -sel clipboard | xclip -i'
 alias x2b=xclip2b
 alias b2x=b2xclip
+alias psc='ps xawf -eo pid,user,cgroup,args'
+#alias sleeptime='mpc add "Snow Patrol/10-crack_the_shutters.mp3" && mpc play `mpc playlist|wc -l` && suspendin 4.35m'
+alias sleeptime='mplay "Snow Patrol/10-crack_the_shutters.mp3" && suspendin 3.2m'
+alias isrunning='ps aux | grep'
+alias mkrpibk='sudo dd if=/dev/mmcblk0 | gzip -c > /mnt/XFSArchive1/Archives/RPI-Backup-`date +%Y%m%d`.iso.gz'
+# http://lcamtuf.blogspot.com/2014/10/psa-dont-run-strings-on-untrusted-files.html
+alias strings='strings -a'
+alias hd='od -A x -t x1z -v'
+alias battlenet="cd $HOME/'.wine/drive_c/Program Files (x86)/World of Warcraft' && wine 'World of Warcraft Launcher.exe'"
+alias 3d='mpv -vo opengl-old:stereo=3'
+
+## BC Scripts
 alias ctof='bc -q ~/lib/bc-scripts/CtoF'
 alias ftoc='bc -q ~/lib/bc-scripts/FtoC'
+alias stoploss='bc -q ~/lib/bc-scripts/getP'
+alias hr2yr='bc -q ~/lib/bc-scripts/hr2yr'
+alias yr2hr='bc -q ~/lib/bc-scripts/yr2hr'
+
+## Network related
 alias ffget='wget --user-agent="Mozilla/5.0 (Windows NT 5.1; rv:2.0) Gecko/20100101 Firefox/4.0"'
 alias wgetmp3="ffget -nc -r -l 1 -A '*.mp3' --no-directories"
 alias btcotp='wget -q -O - http://bitcoin-otc.com/otps/4174775D7DDF9DCF | gpg -q | xclip -i'
-alias mkrpibk='sudo dd if=/dev/mmcblk0 | gzip -c > /mnt/XFSArchive1/Archives/RPI-Backup-`date +%Y%m%d`.iso.gz'
-alias isrunning='ps aux | grep'
-alias psc='ps xawf -eo pid,user,cgroup,args'
-alias sleeptime='mpc add "Snow Patrol/02-chasing_cars.mp3" && mpc play `mpc playlist|wc -l` && suspendin 4.35m'
-alias hd='od -A x -t x1z -v'
 alias ptun='pcmd'
+alias unfucklink="xclip -o | tr -d '\n' && echo"
+alias mywanip="lynx -dump -nolist ipchicken.com | perl -ne 'print unless(/\]$/ || /^\s+$/)'"
 alias fakefox=ffget
 
 # Options
@@ -99,7 +113,6 @@ bindkey '^[[B' down-line-or-search
 #bindkey "\e[4~" end-of-line
 
 # Functions
-source /usr/share/doc/pkgfile/command-not-found.zsh
 #command_not_found_handler() { /usr/bin/python /usr/lib/command-not-found -- $1; return $?; }
 
 #
@@ -116,37 +129,39 @@ bdns() {
 }
 
 # Various file downloaders
+## Helper for file downloaders
+getfoo() {
+    ffget "$1" "$4" -q -O - | \
+        grep "$2" | tr -d \' | \
+        sed 's/'"$3"'/\2/' | \
+        urldecode | ffget -i -
+}
+
 mediafire() {
-    ffget "$1" -q -O - | grep 'kNO =' | \
-        sed 's/\(.*\)kNO\s=\s"\(.*\)"\(.*\)/\2/' | \
-        ffget -i -
+    getfoo "$1" 'kNO =' '\(.*\)kNO\s=\s"\(.*\)"\(.*\)'
+}
+
+getml() {
+    getfoo "$1" '__fileurl' '\(.*\) \(.*\);\(.*\)'
+}
+
+getx() {
+    getfoo "$1" 'flv_url' '\(.*\)flv_url=\(.*\)&amp;related\(.*\)'
 }
 
 getmp4() {
-    if [[ -z "$2" ]]; then
-        OUT='-';
-    else
-        OUT="- -O $2"
-    fi
-
-    ffget "$1" -q -O - | \
-        grep '.mp4' | grep file= \
-        | sed 's/\(.*\)file="\(.*\)"\s\(.*\)/\2/' | ffget -qi "$OUT"
+    getfoo "$1" '.mp4' '\(.*\)file="\(.*\)"\s\(.*\)'
 }
 
 archer() {
-    ffget --post-data='fuck_you=&confirm=yuklen' -q -O - "$@" | grep file= | \
-        sed 's/.*file=\(http.*flv\).*/\1/' | urldecode | ffget -i -
+    getfoo "$1" 'file: ' '\(.*\)"\(.*\)".*' \
+        --post-data='fuck_you=&confirm=yuklen'
 }
 
-pcmd() {
-    if [[ -z $2 ]]; then
-        CMD=ssh
-    else
-        CMD=$2
-    fi
-
-    while true; do command $CMD $1; [ $? -eq 0 ] && break || sleep 2; done
+toontv() {
+    ffget -q -O - "$@" | grep '_url = ' | \
+        sed 's/.*"\(.*\)".*/\1/' | urldecode | ffget -i - && \
+        rename 's/(.*?)\?.*/$1/' *.mp4\?*
 }
 
 #s = stock
@@ -175,27 +190,38 @@ stocks() {
 }
 
 proxy_get() {
-    ssh angry.goos.es "./bin/proxy_get $1" | gzip -dc > out.mp4
+    ssh angry.goos.es "./bin/proxy_get $1" | gzip -dc > `date +%s`.mp4
 }
 
 dpaste() {
-    if [[ -z $1 ]]; then
-        DAYS=1
-    else
-        DAYS=$1
-    fi
+    [ -z $1 ] && DAYS=1 || DAYS=$1
 
     curl -si -F "expiry_days=$DAYS" -F "content=<-" \
         http://dpaste.com/api/v2/ | \
         grep '^Location:' | colrm 1 10
 }
 
+imgur() {
+    [ -z "$CLIENTID" ] && CLIENTID='83486f068fd3b4f'
+
+    for img in $@; do
+        curl -sH "Authorization: Client-ID $CLIENTID" -F "image=@$img" \
+            https://api.imgur.com/3/upload | \
+            sed -e 's/\\//g'
+    done;
+}
+
 #
 ##Encoding/Decoding
 #
 hex2utf8() {
-    echo $1 | \
-        perl -nE 'binmode STDOUT, ":utf8";say map chr, map hex, split'
+    if [ -z $@ ]; then
+        perl -nE 'binmode STDOUT, ":utf8";say map chr, map hex, split' \
+            < /dev/stdin
+    else
+        perl -nE 'binmode STDOUT, ":utf8";say map chr, map hex, split' \
+            <<<"$@"
+    fi
 }
 
 urlencode() {
@@ -245,40 +271,73 @@ suspendin() {
     sudo -s sleep $n && systemctl suspend
 }
 
+suspendafter() {
+   sudo -s sh -c "while sleep 2; do ps aux | grep $@ | grep -qv grep || break; done && systemctl suspend"
+}
+
+pcmd() {
+    if [[ -z $2 ]]; then
+        CMD=ssh
+    else
+        CMD=$2
+    fi
+
+    while true; do command $CMD $1; [ $? -eq 0 ] && break || sleep 2; done
+}
+
 #
 ## Weaboo Related, A class unto itself
 #
 ihas() {
-    grep -i $1 ~/Documents/Data/checksums.sha1 | \
+    STR=`tr ' ' '.' <<<"$1"`
+    grep -ie "$STR" ~/Documents/Data/checksums.sha1 | \
         sed 's/\s\s/\t/' | \
         cut -f 2 | sort
 }
 
+# Organize Weaboo Files for convergence
+#organize() {
+#    perl -ne 'chomp();if(/\[.*?\]\s?([A-z0-9!\s-]+)\s-\s?/){if(! -e qq($1)){mkdir($1)};rename $_,qq($1/$_)}'
+#}
+
 # Wrapper for specific xdcc parsers
 canhas() {
-    FILE="$HOME/Documents/Data/current_weaboos"
+    if [[ -z "$FILE" ]];
+    then
+        FILE="$HOME/Documents/Data/current_weaboos"
+    fi
+
     if [[ -z $@ ]]; then
         cat "$FILE"
         return 0
     fi
 
-    eval `grep -i "$*" "$FILE" | \
-        awk -F@@ '{print $2}'`
+    if [[ "$@" == "all" ]]; then
+        while read line; do
+            eval `awk -F@@ \
+                '{ if ($0 ~ /^[[:space:]]*#/) {next} else {print $2} }' \
+                <<<"$line"` | \
+                perl -ne \
+                'if(/^(\d+).*?\[.*?\]\s?([A-z0-9!\s-]+)\s?-\s?(\d+)/){print "$1 $3,$2\n";}'
+        done < "$FILE"
+    fi
+
+    for x in $@; do
+        eval `grep -i $x "$FILE" | \
+            awk -F@@ '{print $2}'`
+    done
 }
 
 # This works for all XDCC lists powered by "XDCC Parser"
 xdccq() {
     if [[ -z $2 ]]; then
-        N='[UTW]Ariel'
-    else
-        N=$2
-    fi
-    if [[ -z $3 ]]; then
-        H='xdcc.utw.me'
+        #H='xdcc.utw.me'
+        H='xdcc.horriblesubs.info'
     else
         H=$3
     fi
-    wget -q -O - http://$H/search.php"?nick=$N" | grep -i $1 | \
+    # Relying on BOT global cuz lots of stuff is using it now
+    ffget -q -O - http://$H/search.php"?nick=$BOT" | grep -i $1 | \
         awk -F, '{split($2,a,":"); print a[2], $4}'
 }
 
@@ -312,6 +371,7 @@ weaboorename() {
     fi
 
     rename -n "$RX" *.mkv && read && rename "$RX" *.mkv
+    ls
 }
 
 #
@@ -371,6 +431,13 @@ dline() {
 }
 
 play() { vdpau `xclip -o` }
+epoch() {
+    for x in $@; do
+        date --date="@$x";
+    done
+}
+
+mplay() { mpc add "$@" && mpc play `mpc playlist|wc -l` }
 
 quotesearch() {
     STR="$@"
@@ -389,3 +456,7 @@ precmd() {
     PROMPT="${GRE}%n${RCLR}@${BLU}%m${RCLR} ${PWDCOLOR}%1~ ${RCLR}%# "
     RPROMPT="${RCLR}${vcs_info_msg_0_}[${YEL}%?:%l${RCLR}]"
 }
+
+# Include
+source /usr/share/doc/pkgfile/command-not-found.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
