@@ -33,9 +33,6 @@ alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
 alias s='echo FAIL && ls'
-alias mplayer=mpv
-alias vdpau='mpv -vo vdpau -fs --framedrop=decoder+vo'
-alias mkv='vdpau -demuxer mkv'
 alias ..='cd ../ && l'
 alias ...='cd ../.. && l'
 alias ....='cd ../../.. && l'
@@ -52,7 +49,12 @@ alias mkrpibk='sudo dd if=/dev/mmcblk0 | gzip -c > /mnt/XFSArchive1/Archives/RPI
 alias strings='strings -a'
 alias hd='od -A x -t x1z -v'
 alias battlenet="cd $HOME/'.wine/drive_c/Program Files (x86)/World of Warcraft' && wine 'World of Warcraft Launcher.exe'"
+
+## Video related
 alias 3d='mpv -vo opengl-old:stereo=3'
+alias mplayer=mpv
+alias vdpau='mpv -vo vdpau -fs --framedrop=decoder+vo'
+alias mkv='vdpau -demuxer mkv'
 
 ## BC Scripts
 alias ctof='bc -q ~/lib/bc-scripts/CtoF'
@@ -430,19 +432,20 @@ dline() {
     sed -i "${n}d" "$f"
 }
 
-play() { vdpau `xclip -o` }
 epoch() {
     for x in $@; do
         date --date="@$x";
     done
 }
 
-mplay() { mpc add "$@" && mpc play `mpc playlist|wc -l` }
-
 quotesearch() {
     STR="$@"
     awk "BEGIN { RS=\"=\";IGNORECASE=1 } \$0 ~ /$STR/" </opt/qs/quotes
 }
+
+# Video related
+mplay() { mpc add "'$@'" && mpc play `mpc playlist|wc -l` }
+play() { vdpau `xclip -o` }
 
 ### ZSH Specific
 precmd() {
