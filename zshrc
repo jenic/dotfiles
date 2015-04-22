@@ -49,6 +49,7 @@ alias mkrpibk='sudo dd if=/dev/mmcblk0 | gzip -c > /mnt/XFSArchive1/Archives/RPI
 alias strings='strings -a'
 alias hd='od -A x -t x1z -v'
 alias battlenet="cd $HOME/'.wine/drive_c/Program Files (x86)/World of Warcraft' && wine 'World of Warcraft Launcher.exe'"
+alias csvtr="tr '\n' ','"
 alias weabformat="cut -d ' ' -f 1 | tr '\n' ' '"
 
 ## Video related
