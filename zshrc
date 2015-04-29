@@ -382,7 +382,9 @@ weaboorename() {
 ## Various Helpers
 #
 rndx() {
-    OK='a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='
+    if [ -z "$OK" ]; then
+        OK='a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='
+    fi
 
     if [ -z $1 ]; then
         COUNT=15
