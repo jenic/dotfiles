@@ -7,9 +7,8 @@ Config { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*"
        , commands =	[ Run StdinReader
 			, Run Com "cat" ["/tmp/mpd-playing"] "playing" 50
 			, Run Com "date" ["-u","+\"%Y-%m-%d %H:%M:%S\""] "utc" 50
-            , Run Com "mpc" ["volume"] "vol" 90
 			]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %playing% [<fc=#a0a0a0>%vol%</fc>] UTC <fc=#666666>%utc%</fc>"
+       , template = "%StdinReader% }{ %playing% UTC <fc=#666666>%utc%</fc>"
        }
