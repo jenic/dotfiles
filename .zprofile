@@ -11,6 +11,7 @@ export TZ='America/Denver'
 export LS_OPTIONS='--color=auto --group-directories-first'
 export JAVA_HOME='/usr/lib/jvm/java-default-runtime'
 export BOT='CR-TEXAS2|NEW'
+export _JAVA_AWT_WM_NONREPARENTING=1
 
 # Make our Environment not retarded
 if [ -f ${HOME}/.termcap ]; then

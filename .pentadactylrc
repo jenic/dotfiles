@@ -52,3 +52,7 @@ set defsearch=duck-duck-go
 set hintkeys=qwasderfghjkpl1234
 
 " vim: set ft=pentadactyl:
+
+" Fix uMatrix because it uses the new bullshit made by the traitors at Mozilla
+" "Corporation"
+style -name ublick * #nav-bar * { visibility: visible; }

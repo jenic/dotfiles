@@ -51,6 +51,7 @@ alias hd='od -A x -t x1z -v'
 alias battlenet="cd $HOME/'.wine/drive_c/Program Files (x86)/World of Warcraft' && wine 'World of Warcraft Launcher.exe'"
 alias csvtr="tr '\n' ','"
 alias weabformat="cut -d ' ' -f 1 | tr '\n' ' '"
+alias record-desktop="ffmpeg -f alsa -ac 1 -i hw:2 -f x11grab -s 1920x1080 -framerate 25 -i :0.0"
 
 ## Video related
 alias 3d='mpv -vo opengl-old:stereo=3'
@@ -449,7 +450,8 @@ quotesearch() {
 
 # Video related
 mplay() { mpc add <<<"$@" && mpc play "`mpc playlist|wc -l`" }
-play() { vdpau `xclip -o` }
+# Moved to a shell script so xmonad can play too
+#play() { vdpau `xclip -o` }
 
 ### ZSH Specific
 precmd() {
