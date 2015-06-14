@@ -1,0 +1,19 @@
+[default]
+vo=xv,wayland,directfb
+ao=pulse,alsa
+vd-lavc-threads=2
+#nofontconfig = 1
+#sub-scale=2
+sub-ass=yes
+#idx=yes
+heartbeat-cmd="/usr/bin/xscreensaver-command -deactivate >&- 2>&- &"
+# mpg123 for ALL THE THINGS
+#[extension.mp3]
+#profile-desc="profile for .mp3 files"
+#ac=mpg123
+
+[vo.vdpau]
+# the trailing comma in each setting tells mplayer to fall back to standard
+# codecs if necessary
+hwdec=vdpau
+vf-clr=yes

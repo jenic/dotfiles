@@ -1,0 +1,19 @@
+prefer-ipv4=yes
+ao=pulse
+lavdopts=threads=2
+#nofontconfig = 1
+nojoystick=1
+subfont-text-scale = 3
+#vo=vdpau
+ass=1
+heartbeat-cmd="/usr/bin/xscreensaver-command -deactivate >&- 2>&- &"
+# mpg123 for ALL THE THINGS
+#[extension.mp3]
+#profile-desc="profile for .mp3 files"
+#ac=mpg123
+
+[vo.vdpau]
+# the trailing comma in each setting tells mplayer to fall back to standard
+# codecs if necessary
+vc=ffmpeg12vdpau,ffwmv3vdpau,ffvc1vdpau,ffh264vdpau,ffodivxvdpau,
+vf-clr=yes
