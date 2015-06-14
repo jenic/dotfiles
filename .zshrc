@@ -291,95 +291,6 @@ pcmd() {
 }
 
 #
-## Weaboo Related, A class unto itself
-#
-ihas() {
-    STR=`tr ' ' '.' <<<"$1"`
-    grep -ie "$STR" ~/Documents/Data/checksums.sha1 | \
-        sed 's/\s\s/\t/' | \
-        cut -f 2 | sort
-}
-
-# Organize Weaboo Files for convergence
-#organize() {
-#    perl -ne 'chomp();if(/\[.*?\]\s?([A-z0-9!\s-]+)\s-\s?/){if(! -e qq($1)){mkdir($1)};rename $_,qq($1/$_)}'
-#}
-
-# Wrapper for specific xdcc parsers
-canhas() {
-    if [[ -z "$FILE" ]];
-    then
-        FILE="$HOME/Documents/Data/current_weaboos"
-    fi
-
-    if [[ -z $@ ]]; then
-        cat "$FILE"
-        return 0
-    fi
-
-    if [[ "$@" == "all" ]]; then
-        while read line; do
-            eval `awk -F@@ \
-                '{ if ($0 ~ /^[[:space:]]*#/) {next} else {print $2} }' \
-                <<<"$line"` | \
-                perl -ne \
-                'if(/^(\d+).*?\[.*?\]\s?([A-z0-9!\s-]+)\s?-\s?(\d+)/){print "$1 $3,$2\n";}'
-        done < "$FILE"
-    fi
-
-    for x in $@; do
-        eval `grep -i $x "$FILE" | \
-            awk -F@@ '{print $2}'`
-    done
-}
-
-# This works for all XDCC lists powered by "XDCC Parser"
-xdccq() {
-    if [[ -z $2 ]]; then
-        #H='xdcc.utw.me'
-        H='xdcc.horriblesubs.info'
-    else
-        H=$3
-    fi
-    # Relying on BOT global cuz lots of stuff is using it now
-    ffget -q -O - http://$H/search.php"?nick=$BOT" | grep -i $1 | \
-        awk -F, '{split($2,a,":"); print a[2], $4}'
-}
-
-# HTML based
-csbots() {
-    if [[ -z $2 ]]; then
-        H='tori.aoi-chan.com'
-    else
-        H=$2
-    fi
-
-    if [[ -z $3 ]]; then
-        P='80'
-    else
-        P=$3
-    fi
-
-    if [[ -z $4 ]]; then
-        lynx -dump "http://$H:$P" | grep -i "$1" | less
-    else
-        echo -e "s=$1\n---" | lynx -post_data \
-            -dump "http://$H:$P" | less
-    fi
-}
-
-weaboorename() {
-    if [[ -z $1 ]]; then
-        RX='s/.*(_|\s)(\d+)v?\d?\1.*/$2.mkv/'
-    else
-        RX="$1"
-    fi
-
-    rename -n "$RX" *.mkv && read && rename "$RX" *.mkv
-    ls
-}
-
-#
 ## Various Helpers
 #
 rndx() {
@@ -448,6 +359,13 @@ quotesearch() {
     awk "BEGIN { RS=\"=\";IGNORECASE=1 } \$0 ~ /$STR/" </opt/qs/quotes
 }
 
+ihas() {
+    STR=`tr ' ' '.' <<<"$1"`
+    grep -ie "$STR" ~/Documents/Data/checksums.sha1 | \
+        sed 's/\s\s/\t/' | \
+        cut -f 2 | sort
+}
+
 # Video related
 mplay() { mpc add <<<"$@" && mpc play "`mpc playlist|wc -l`" }
 # Moved to a shell script so xmonad can play too
@@ -469,3 +387,4 @@ precmd() {
 # Include
 source /usr/share/doc/pkgfile/command-not-found.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $HOME/Projects/weaboo-tools/neet-shell.zsh
