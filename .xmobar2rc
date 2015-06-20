@@ -6,7 +6,7 @@ Config { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*"
        , lowerOnStart = True
        , commands =	[ Run StdinReader
 			, Run Com "cat" ["/tmp/mpd-playing"] "playing" 50
-			, Run Com "date" ["-u","+\"%Y-%m-%d %H:%M:%S\""] "utc" 50
+			, Run Com "date" ["-u","+%Y-%m-%d %H:%M:%S"] "utc" 50
 			]
        , sepChar = "%"
        , alignSep = "}{"
