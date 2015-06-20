@@ -67,9 +67,9 @@ alias hr2yr='bc -q ~/lib/bc-scripts/hr2yr'
 alias yr2hr='bc -q ~/lib/bc-scripts/yr2hr'
 
 ## Network related
-alias ffget='wget --user-agent="Mozilla/5.0 (Windows NT 5.1; rv:2.0) Gecko/20100101 Firefox/4.0"'
+alias ffget='wget -4 --user-agent="Mozilla/5.0 (Windows NT 5.1; rv:2.0) Gecko/20100101 Firefox/4.0"'
 alias wgetmp3="ffget -nc -r -l 1 -A '*.mp3' --no-directories"
-alias btcotp='wget -q -O - http://bitcoin-otc.com/otps/4174775D7DDF9DCF | gpg -q | xclip -i'
+alias btcotp='ffget -q -O - http://bitcoin-otc.com/otps/4174775D7DDF9DCF | gpg -q | xclip -i'
 alias ptun='pcmd'
 alias unfucklink="xclip -o | tr -d '\n' && echo"
 alias mywanip="lynx -dump -nolist ipchicken.com | perl -ne 'print unless(/\]$/ || /^\s+$/)'"
@@ -183,7 +183,7 @@ stocks() {
     if [[ -z $OPTS ]]; then
         OPTS='sl1p2hgrnd1t1'
     fi
-    raw=`wget -qO - "http://finance.yahoo.com/d/quotes.csv?s=$STOCKS&f=$OPTS"`
+    raw=`ffget -qO - "http://finance.yahoo.com/d/quotes.csv?s=$STOCKS&f=$OPTS"`
     while read line; do
         change=`awk -F, '{print $3}' <<<"$line"`
         if [[ "${change:1:1}" == "-" ]]; then
