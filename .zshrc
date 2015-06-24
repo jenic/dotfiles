@@ -180,9 +180,8 @@ toontv() {
 #p2 = percent change
 stocks() {
     STOCKS=`tr ' ' '+' <<<"$@"`
-    if [[ -z $OPTS ]]; then
-        OPTS='sl1p2hgrnd1t1'
-    fi
+    [ -z $OPTS ] && OPTS='sl1p2hgrnd1t1'
+
     raw=`ffget -qO - "http://finance.yahoo.com/d/quotes.csv?s=$STOCKS&f=$OPTS"`
     while read line; do
         change=`awk -F, '{print $3}' <<<"$line"`
@@ -212,6 +211,16 @@ imgur() {
     for img in $@; do
         curl -sH "Authorization: Client-ID $CLIENTID" -F "image=@$img" \
             https://api.imgur.com/3/upload | \
+            sed -e 's/\\//g'
+    done;
+}
+
+del_imgur() {
+    [ -z "$CLIENTID" ] && CLIENTID='83486f068fd3b4f'
+
+    for img in $@; do
+        curl -sH "Authorization: Client-ID $CLIENTID" \
+            -X DELETE "https://api.imgur.com/3/image/@$img" | \
             sed -e 's/\\//g'
     done;
 }
@@ -281,11 +290,7 @@ suspendafter() {
 }
 
 pcmd() {
-    if [[ -z $2 ]]; then
-        CMD=ssh
-    else
-        CMD=$2
-    fi
+    [ -z $2 ] && CMD=ssh || CMD=$2
 
     while true; do command $CMD $1; [ $? -eq 0 ] && break || sleep 2; done
 }
@@ -294,21 +299,10 @@ pcmd() {
 ## Various Helpers
 #
 rndx() {
-    if [ -z "$OK" ]; then
-        OK='a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='
-    fi
+    [ -z "$OK" ] && OK='a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='
 
-    if [ -z $1 ]; then
-        COUNT=15
-    else
-        COUNT=$1
-    fi
-
-    if [ -z $2 ]; then
-        INPUT=/dev/urandom
-    else
-        INPUT=/dev/random
-    fi
+    [ -z $1 ] && COUNT=15 || COUNT=$1
+    [ -z $2 ] && INPUT=/dev/urandom || INPUT=/dev/random
 
     OUT=""
     # wc -m interprets \n as a character, cut does not
@@ -333,17 +327,8 @@ charfreq() {
 }
 
 dline() {
-    if [[ -z $1 ]]; then
-        f="$HOME/.ssh/known_hosts"
-    else
-        f=$1
-    fi
-
-    if [[ -z $2 ]]; then
-        n='$'
-    else
-        n=$2
-    fi
+    [ -z $1 ] && f="$HOME/.ssh/known_hosts" || f=$1
+    [ -z $2 ] && n='$' || n=$2
 
     sed -i "${n}d" "$f"
 }
@@ -374,11 +359,7 @@ mplay() { mpc add <<<"$@" && mpc play "`mpc playlist|wc -l`" }
 ### ZSH Specific
 precmd() {
     vcs_info 'prompt'
-    if [[ -w $PWD ]]; then
-        PWDCOLOR=$GRE
-    else
-        PWDCOLOR=$RED
-    fi
+    [ -w $PWD ] && PWDCOLOR=$GRE || PWDCOLOR=$RED
 
     PROMPT="${GRE}%n${RCLR}@${BLU}%m${RCLR} ${PWDCOLOR}%1~ ${RCLR}%# "
     RPROMPT="${RCLR}${vcs_info_msg_0_}[${YEL}%?:%l${RCLR}]"
