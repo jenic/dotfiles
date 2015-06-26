@@ -41,7 +41,6 @@ alias b2xclip='xclip -o -sel clipboard | xclip -i'
 alias x2b=xclip2b
 alias b2x=b2xclip
 alias psc='ps xawf -eo pid,user,cgroup,args'
-#alias sleeptime='mpc add "Snow Patrol/10-crack_the_shutters.mp3" && mpc play `mpc playlist|wc -l` && suspendin 4.35m'
 alias sleeptime='mplay "Snow Patrol/10-crack_the_shutters.mp3" && suspendin 3.2m'
 alias isrunning='ps aux | grep'
 alias mkrpibk='sudo dd if=/dev/mmcblk0 | gzip -c > /mnt/XFSArchive1/Archives/RPI-Backup-`date +%Y%m%d`.iso.gz'
@@ -50,7 +49,6 @@ alias strings='strings -a'
 alias hd='od -A x -t x1z -v'
 alias battlenet="cd $HOME/'.wine/drive_c/Program Files (x86)/World of Warcraft' && wine 'World of Warcraft Launcher.exe'"
 alias csvtr="tr '\n' ','"
-alias weabformat="cut -d ' ' -f 1 | tr '\n' ' '"
 alias record-desktop="ffmpeg -f alsa -ac 1 -i hw:2 -f x11grab -s 1920x1080 -framerate 25 -i :0.0"
 
 ## Video related
@@ -277,11 +275,8 @@ scancode() {
 ## System
 #
 suspendin() {
-    if [[ -z $1 ]]; then
-        n=60
-    else
-        n=$1
-    fi
+    [ -z $1 ] && n=60 || n=$1
+
     sudo -s sleep $n && systemctl suspend
 }
 
@@ -320,11 +315,8 @@ sumof() {
 }
 
 # Frequency Analysis helper
-charfreq() {
-    perl -le \
-        'my%i;for(grep(!/\s/,split"",<STDIN>)){$i{$_}++}while(my($k,$v)=each%i){print"$k\t$v"}' \
-        <<<"$@"
-}
+# AKA LETS GO GOLFING
+charfreq() { perl -F'' -aE '$i{$_}++for(@F);}{say"$_\t$i{$_}"for(keys%i)' }
 
 dline() {
     [ -z $1 ] && f="$HOME/.ssh/known_hosts" || f=$1
