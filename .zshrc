@@ -223,6 +223,12 @@ del_imgur() {
     done;
 }
 
+youhaslink() {
+    for link in $@; do
+        curl http://ihas.link/shorten/ -d "url_input=$link"
+    done
+}
+
 #
 ##Encoding/Decoding
 #
