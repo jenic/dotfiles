@@ -204,7 +204,7 @@ dpaste() {
 }
 
 imgur() {
-    [ -z "$CLIENTID" ] && CLIENTID='83486f068fd3b4f'
+    [ -z "$CLIENTID" ] && CLIENTID='65f159db2f3e70c'
 
     for img in $@; do
         curl -sH "Authorization: Client-ID $CLIENTID" -F "image=@$img" \
@@ -214,11 +214,11 @@ imgur() {
 }
 
 del_imgur() {
-    [ -z "$CLIENTID" ] && CLIENTID='83486f068fd3b4f'
+    [ -z "$CLIENTID" ] && CLIENTID='65f159db2f3e70c'
 
     for img in $@; do
         curl -sH "Authorization: Client-ID $CLIENTID" \
-            -X DELETE "https://api.imgur.com/3/image/@$img" | \
+            -X DELETE "https://api.imgur.com/3/image/$img" | \
             sed -e 's/\\//g'
     done;
 }
