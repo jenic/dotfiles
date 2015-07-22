@@ -70,7 +70,7 @@ alias wgetmp3="ffget -nc -r -l 1 -A '*.mp3' --no-directories"
 alias btcotp='ffget -q -O - http://bitcoin-otc.com/otps/4174775D7DDF9DCF | gpg -q | xclip -i'
 alias ptun='pcmd'
 alias unfucklink="xclip -o | tr -d '\n' && echo"
-alias mywanip="lynx -dump -nolist ipchicken.com | perl -ne 'print unless(/\]$/ || /^\s+$/)'"
+alias wanip="lynx -dump -nolist ipchicken.com | perl -ne 'print unless(/\]$/ || /^\s+$/)'"
 alias fakefox=ffget
 
 # Options
@@ -213,6 +213,17 @@ imgur() {
     done;
 }
 
+slimgur() {
+    [ -z "$APIKEY" ] && APIKEY=d2a44e056555fb8aba3b357e5c5b7392
+
+    for img in $@; do
+        curl -F \
+        'source=@-' \
+        "https://slimgur.com/api/1/upload/?key=$APIKEY&format=txt" \
+        < "$img" && echo
+    done
+}
+
 del_imgur() {
     [ -z "$CLIENTID" ] && CLIENTID='65f159db2f3e70c'
 
@@ -223,9 +234,9 @@ del_imgur() {
     done;
 }
 
-youhaslink() {
+dohaslink() {
     for link in $@; do
-        curl http://ihas.link/shorten/ -d "url_input=$link"
+        curl http://ihas.link/api/curtail/ -d "long_url=$link"
     done
 }
 
