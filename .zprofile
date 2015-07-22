@@ -10,8 +10,10 @@ export LANGUAGE='en_US'
 export TZ='America/Denver'
 export LS_OPTIONS='--color=auto --group-directories-first'
 export JAVA_HOME='/usr/lib/jvm/java-default-runtime'
-export BOT='CR-TEXAS2|NEW'
+export BOT='CR-TEXAS|NEW'
 export _JAVA_AWT_WM_NONREPARENTING=1
+export GOPATH=~/lib/go/src
+export GOBIN=~/lib/go/bin
 
 # Make our Environment not retarded
 if [ -f ${HOME}/.termcap ]; then
