@@ -1,3 +1,5 @@
+screenshot-format=png
+input-unix-socket=~/.mpv/mpv.sock
 [default]
 vo=xv,wayland,directfb
 ao=pulse,alsa
@@ -16,4 +18,4 @@ heartbeat-cmd="/usr/bin/xscreensaver-command -deactivate >&- 2>&- &"
 # the trailing comma in each setting tells mplayer to fall back to standard
 # codecs if necessary
 hwdec=vdpau
-vf-clr=yes
+vf-clr
