@@ -178,7 +178,7 @@ toontv() {
 #p2 = percent change
 stocks() {
     STOCKS=`tr ' ' '+' <<<"$@"`
-    [ -z $OPTS ] && OPTS='sl1p2hgrnd1t1'
+    OPTS=${OPTS:-sl1p2hgrnd1t1}
 
     raw=`ffget -qO - "http://finance.yahoo.com/d/quotes.csv?s=$STOCKS&f=$OPTS"`
     while read line; do
@@ -196,7 +196,7 @@ proxy_get() {
 }
 
 dpaste() {
-    [ -z $1 ] && DAYS=1 || DAYS=$1
+    DAYS=${1:-1}
 
     curl -si -F "expiry_days=$DAYS" -F "content=<-" \
         http://dpaste.com/api/v2/ | \
@@ -204,7 +204,7 @@ dpaste() {
 }
 
 imgur() {
-    [ -z "$CLIENTID" ] && CLIENTID='65f159db2f3e70c'
+    CLIENTID=${CLIENTID:-65f159db2f3e70c}
 
     for img in $@; do
         curl -sH "Authorization: Client-ID $CLIENTID" -F "image=@$img" \
@@ -214,7 +214,7 @@ imgur() {
 }
 
 slimgur() {
-    [ -z "$APIKEY" ] && APIKEY=d2a44e056555fb8aba3b357e5c5b7392
+    APIKEY=${APIKEY:-d2a44e056555fb8aba3b357e5c5b7392}
 
     for img in $@; do
         curl -F \
@@ -225,7 +225,7 @@ slimgur() {
 }
 
 del_imgur() {
-    [ -z "$CLIENTID" ] && CLIENTID='65f159db2f3e70c'
+    CLIENTID=${CLIENTID:-65f159db2f3e70c}
 
     for img in $@; do
         curl -sH "Authorization: Client-ID $CLIENTID" \
@@ -292,17 +292,21 @@ scancode() {
 ## System
 #
 suspendin() {
-    [ -z $1 ] && n=60 || n=$1
+    n=${1:-60}
 
     sudo -s sleep $n && systemctl suspend
 }
 
 suspendafter() {
-   sudo -s sh -c "while sleep 2; do ps aux | grep $@ | grep -qv grep || break; done && systemctl suspend"
+   sudo -s sh -c <<EOF
+while sleep 2; do
+    ps aux | grep $@ | grep -qv grep || break;
+done && systemctl suspend
+EOF
 }
 
 pcmd() {
-    [ -z $2 ] && CMD=ssh || CMD=$2
+    CMD=${2:-ssh}
 
     while true; do command $CMD $1; [ $? -eq 0 ] && break || sleep 2; done
 }
@@ -311,10 +315,10 @@ pcmd() {
 ## Various Helpers
 #
 rndx() {
-    [ -z "$OK" ] && OK='a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='
+    OK=${OK:-a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?=}
 
-    [ -z $1 ] && COUNT=15 || COUNT=$1
-    [ -z $2 ] && INPUT=/dev/urandom || INPUT=/dev/random
+    COUNT=${1:-15}
+    INPUT=${2:-/dev/urandom}
 
     OUT=""
     # wc -m interprets \n as a character, cut does not
@@ -336,8 +340,8 @@ sumof() {
 charfreq() { perl -F'' -aE '$i{$_}++for(@F);}{say"$_\t$i{$_}"for(keys%i)' }
 
 dline() {
-    [ -z $1 ] && f="$HOME/.ssh/known_hosts" || f=$1
-    [ -z $2 ] && n='$' || n=$2
+    f=${1:-$HOME/.ssh/known_hosts}
+    n=${2:-\$}
 
     sed -i "${n}d" "$f"
 }
